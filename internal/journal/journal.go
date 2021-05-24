@@ -33,12 +33,22 @@ func NewJournal() (*Journal, error) {
 	return &Journal{db: db}, nil
 }
 
-func (journal* Journal) ListMessages(callback func(uint64, *gelf.Message) (bool, error)) error {
+func (journal* Journal) ListMessages(begin int, limit int, callback func(uint64, *gelf.Message) (bool, error)) error {
 
 	return journal.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))
 		cursor := bucket.Cursor()
-		for key, value := cursor.First(); key != nil; key, value = cursor.Next() {
+		count := 0
+		var key, value []byte
+		if begin <= 0 {
+			key, value = cursor.First()
+		} else {
+			key, value = cursor.Seek(itob(uint64(begin)))
+		}
+		for ; key != nil; key, value = cursor.Next() {
+			if limit != -1 && count >= limit {
+				break
+			}
 			id := btoi(key)
 			var message gelf.Message
 			err := json.Unmarshal(value, &message)
@@ -52,6 +62,7 @@ func (journal* Journal) ListMessages(callback func(uint64, *gelf.Message) (bool,
 			if !goon {
 				return nil
 			}
+			count = count+1
 		}
 		return nil
 	})

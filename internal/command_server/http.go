@@ -7,12 +7,13 @@ import (
 	gelf "gopkg.in/Graylog2/go-gelf.v2/gelf"
 	"net/http"
 	"github.com/gorilla/mux"
+	"strconv"
 )
 
-func listMessages(w http.ResponseWriter, r *http.Request, journal *journalPkg.Journal) {
+func listMessages(w http.ResponseWriter, r *http.Request, begin int, limit int, journal *journalPkg.Journal) {
 	fmt.Fprintf(w, "{\"messages\":[")
-	first := true
-	journal.ListMessages(func(id uint64, message *gelf.Message) (bool, error) {
+	isFirst := true
+	journal.ListMessages(begin, limit, func(id uint64, message *gelf.Message) (bool, error) {
 		messageWithId, err := toMessageWithId(id, message)
 		if err != nil {
 			return false, err
@@ -23,11 +24,11 @@ func listMessages(w http.ResponseWriter, r *http.Request, journal *journalPkg.Jo
 			return false, err
 		}
 		seperator := ",\n"
-		if first {
+		if isFirst {
 			seperator = "\n"
 		}
 		fmt.Fprintf(w, "%s%s", seperator, messageJson)
-		first = false
+		isFirst = false
 		return true, nil
 	})
 	fmt.Fprintf(w, "\n]}\n")
@@ -37,7 +38,29 @@ func newHttpHandler(journal *journalPkg.Journal) http.Handler {
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.HandleFunc("/messages", func(w http.ResponseWriter, r *http.Request) {
-		listMessages(w, r, journal)
+		var begin = -1
+		beginParam, ok := r.URL.Query()["begin"]
+		if ok && beginParam[0] != "" {
+			value, err := strconv.Atoi(beginParam[0])
+			if  err != nil {
+				http.Error(w, fmt.Sprintf("Begin invalid: '%s'", beginParam[0]), http.StatusBadRequest)
+				return
+			}
+			begin = value
+		}
+
+		limit := -1
+		limitParam, ok := r.URL.Query()["limit"]
+		if ok && limitParam[0] != "" {
+			value, err := strconv.Atoi(limitParam[0])
+			if  err != nil {
+				http.Error(w, fmt.Sprintf("Limit invalid: '%s'", limitParam[0]), http.StatusBadRequest)
+				return
+			}
+			limit = value
+		}
+
+		listMessages(w, r, begin, limit, journal)
 	}).Methods("GET")
 
 	return http.Handler(router)
