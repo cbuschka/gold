@@ -1,4 +1,4 @@
-package daemon
+package gelf_server
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	journalPkg "github.com/cbuschka/golf/internal/journal"
 )
 
-func serveUdp(addr string, journal *journalPkg.Journal) {
+func ServeUdp(addr string, journal *journalPkg.Journal) {
 	rd, err := gelf.NewReader(addr)
 	if err != nil {
 		panic(err)
