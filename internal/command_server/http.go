@@ -9,15 +9,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type listMessagesResponse struct {
-	messages []*gelf.Message
-}
-
 func listMessages(w http.ResponseWriter, r *http.Request, journal *journalPkg.Journal) {
 	fmt.Fprintf(w, "{\"messages\":[")
 	first := true
 	journal.ListMessages(func(id uint64, message *gelf.Message) (bool, error) {
-		messageJson, err := jsonPkg.Marshal(message)
+		messageWithId, err := toMessageWithId(id, message)
+		if err != nil {
+			return false, err
+		}
+
+		messageJson, err := jsonPkg.Marshal(messageWithId)
 		if err != nil {
 			return false, err
 		}
@@ -40,4 +41,18 @@ func newHttpHandler(journal *journalPkg.Journal) http.Handler {
 	}).Methods("GET")
 
 	return http.Handler(router)
+}
+
+func toMessageWithId(id uint64, gelfMessage *gelf.Message) (*MessageWithId, error) {
+	gelfMessageJson, err := jsonPkg.Marshal(gelfMessage)
+	if err != nil {
+		return nil, err
+	}
+	var messageWithId MessageWithId
+	err = jsonPkg.Unmarshal(gelfMessageJson, &messageWithId)
+	if err != nil {
+		return nil, err
+	}
+	messageWithId.Id = id
+	return &messageWithId, nil
 }
