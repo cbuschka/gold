@@ -2,6 +2,7 @@ package journal
 
 import (
 	"encoding/binary"
+	"time"
 	bolt "go.etcd.io/bbolt"
 	gelf "gopkg.in/Graylog2/go-gelf.v2/gelf"
 	"encoding/json"
@@ -72,6 +73,10 @@ func (journal *Journal) WriteMessage(message *gelf.Message) error {
 
 	return journal.db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))
+
+		if message.TimeUnix == float64(0) {
+			message.TimeUnix = float64(time.Now().Unix())
+		}
 
 		id, _ := bucket.NextSequence()
 

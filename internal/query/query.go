@@ -13,7 +13,7 @@ func ListMessages() error {
 		return err
 	}
 	defer journal.Close()
-	return journal.ListMessages(func(id uint64, message *gelf.Message) (bool, error) {
+	return journal.ListMessages(-1, -1, func(id uint64, message *gelf.Message) (bool, error) {
 		json, err := jsonPkg.Marshal(message)
 		if err != nil {
 			return false, err

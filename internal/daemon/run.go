@@ -5,6 +5,7 @@ import (
         worker "github.com/cbuschka/golf/internal/worker"
 	"github.com/cbuschka/golf/internal/gelf_server"
 	"github.com/cbuschka/golf/internal/command_server"
+	"github.com/cbuschka/golf/internal/dump"
 )
 
 func startUdpServer(addr string, journal *journalPkg.Journal, workerPool *worker.WorkerPool) {
@@ -43,6 +44,7 @@ func Run() error {
 	startTcpServer("127.0.0.1:12201", journal, workerPool)
 	startUdsCommandServer(journal, workerPool)
 	startGelfHttpServer(journal, workerPool)
+	dump.StartPeriodicDump(journal, workerPool)
 	workerPool.Wait()
 
 	return nil
