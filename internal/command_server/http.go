@@ -40,7 +40,7 @@ func newHttpHandler(journal *journalPkg.Journal) http.Handler {
 	router.HandleFunc("/messages", func(w http.ResponseWriter, r *http.Request) {
 		var begin = -1
 		beginParam, ok := r.URL.Query()["begin"]
-		if ok && beginParam[0] != "" {
+		if ok && len(beginParam) > 0 && beginParam[0] != "" {
 			value, err := strconv.Atoi(beginParam[0])
 			if  err != nil {
 				http.Error(w, fmt.Sprintf("Begin invalid: '%s'", beginParam[0]), http.StatusBadRequest)
@@ -51,7 +51,7 @@ func newHttpHandler(journal *journalPkg.Journal) http.Handler {
 
 		limit := -1
 		limitParam, ok := r.URL.Query()["limit"]
-		if ok && limitParam[0] != "" {
+		if ok && len(limitParam) > 0 && limitParam[0] != "" {
 			value, err := strconv.Atoi(limitParam[0])
 			if  err != nil {
 				http.Error(w, fmt.Sprintf("Limit invalid: '%s'", limitParam[0]), http.StatusBadRequest)
