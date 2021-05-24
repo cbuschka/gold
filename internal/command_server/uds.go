@@ -8,20 +8,21 @@ import (
 	"os"
 )
 
-func ServeUds(file string, journal *journalPkg.Journal) {
-
+func ServeUds(file string, journal *journalPkg.Journal) error {
 
 	if err := os.RemoveAll(file); err != nil {
-		panic(err)
+		return err
 	}
 
 	fmt.Printf("Command server listening on %s...\n", file)
 
 	udsListener, err := net.Listen("unix", file)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer udsListener.Close()
 	httpHandler := newHttpHandler(journal)
 	http.Serve(udsListener, httpHandler)
+
+	return nil
 }

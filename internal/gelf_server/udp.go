@@ -6,17 +6,17 @@ import (
 	journalPkg "github.com/cbuschka/golf/internal/journal"
 )
 
-func ServeUdp(addr string, journal *journalPkg.Journal) {
+func ServeUdp(addr string, journal *journalPkg.Journal) error {
 	rd, err := gelf.NewReader(addr)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	fmt.Printf("Listening on %s...\n", addr)
+	fmt.Printf("Listening on %s/udp...\n", addr)
 	for {
 		message, err := rd.ReadMessage()
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		if message == nil {
@@ -30,4 +30,6 @@ func ServeUdp(addr string, journal *journalPkg.Journal) {
 			fmt.Printf("Message %v written to journal.\n", message)
 		}
 	}
+
+	return nil
 }

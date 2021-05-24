@@ -2,29 +2,27 @@ package daemon
 
 import (
         journalPkg "github.com/cbuschka/golf/internal/journal"
-	"sync"
+        worker "github.com/cbuschka/golf/internal/worker"
 	"github.com/cbuschka/golf/internal/gelf_server"
 	"github.com/cbuschka/golf/internal/command_server"
 )
 
-func runWork(f func(), waitGroup *sync.WaitGroup) {
-	waitGroup.Add(1)
-	go (func() {
-		defer waitGroup.Done()
-		f()
-	})()
+func startUdpServer(addr string, journal *journalPkg.Journal, workerPool *worker.WorkerPool) {
+	workerPool.RunWork(func() error {
+			return gelf_server.ServeUdp(addr, journal)
+		})
 }
 
-func startUdpServer(addr string, journal *journalPkg.Journal, waitGroup *sync.WaitGroup) {
-	runWork(func() {
-			gelf_server.ServeUdp(addr, journal)
-		}, waitGroup)
+func startTcpServer(addr string, journal *journalPkg.Journal, workerPool *worker.WorkerPool) {
+	workerPool.RunWork(func() error {
+			return gelf_server.ServeTcp(addr, journal, workerPool)
+		})
 }
 
-func startUdsCommandServer(journal *journalPkg.Journal, waitGroup *sync.WaitGroup) {
-	runWork(func() {
-		command_server.ServeUds("./tmp/golfd.sock", journal)
-	}, waitGroup)
+func startUdsCommandServer(journal *journalPkg.Journal, workerPool *worker.WorkerPool) {
+	workerPool.RunWork(func() error {
+		return command_server.ServeUds("./tmp/golfd.sock", journal)
+	})
 }
 
 func Run() error {
@@ -34,10 +32,11 @@ func Run() error {
 	}
 	defer journal.Close()
 
-	var waitGroup sync.WaitGroup
-	startUdpServer("127.0.0.1:12201", journal, &waitGroup)
-	startUdsCommandServer(journal, &waitGroup)
-	waitGroup.Wait()
+	workerPool := worker.NewWorkerPool()
+	startUdpServer("127.0.0.1:12201", journal, workerPool)
+	startTcpServer("127.0.0.1:12201", journal, workerPool)
+	startUdsCommandServer(journal, workerPool)
+	workerPool.Wait()
 
 	return nil
 }
