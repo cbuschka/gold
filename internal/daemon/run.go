@@ -25,6 +25,12 @@ func startUdsCommandServer(journal *journalPkg.Journal, workerPool *worker.Worke
 	})
 }
 
+func startGelfHttpServer(journal *journalPkg.Journal, workerPool *worker.WorkerPool) {
+	workerPool.RunWork(func() error {
+		return gelf_server.ServeHttp("127.0.0.1:8080", journal)
+	})
+}
+
 func Run() error {
 	journal, err := journalPkg.NewJournal()
 	if err != nil {
@@ -36,6 +42,7 @@ func Run() error {
 	startUdpServer("127.0.0.1:12201", journal, workerPool)
 	startTcpServer("127.0.0.1:12201", journal, workerPool)
 	startUdsCommandServer(journal, workerPool)
+	startGelfHttpServer(journal, workerPool)
 	workerPool.Wait()
 
 	return nil
