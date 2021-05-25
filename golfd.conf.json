@@ -1,0 +1,13 @@
+{
+  "dataDir": "./data",
+  "commandSocketPath": "./run/golfd.sock",
+  "gelfUdpListeners": [
+    "127.0.0.1:12201"
+  ],
+  "gelfTcpListeners": [
+    "127.0.0.1:12201"
+  ],
+  "gelfHttpListeners": [
+    "127.0.0.1:8080"
+  ]
+}

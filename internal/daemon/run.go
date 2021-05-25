@@ -33,8 +33,11 @@ func startGelfHttpListener(bindAddr string, journal *journalPkg.Journal, workerP
 	})
 }
 
-func Run() error {
-	config := configPkg.GetConfig()
+func Run(configFile string) error {
+	config, err := configPkg.GetConfig(configFile)
+	if err != nil {
+		return err
+	}
 
 	journal, err := journalPkg.NewJournal(config)
 	if err != nil {
