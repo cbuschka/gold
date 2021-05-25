@@ -3,6 +3,7 @@ package journal
 import (
 	"encoding/binary"
 	"encoding/json"
+	"github.com/cbuschka/golf/internal/config"
 	"github.com/dgraph-io/badger/v3"
 )
 
@@ -10,8 +11,8 @@ type Journal struct {
 	db *badger.DB
 }
 
-func NewJournal() (*Journal, error) {
-	opts := badger.DefaultOptions("./tmp/db.badger/")
+func NewJournal(config *config.Config) (*Journal, error) {
+	opts := badger.DefaultOptions(config.DataDirPath)
 	opts.InMemory = false
 	opts.NumVersionsToKeep = 1
 	opts.BaseTableSize = 1024 * 1024 * 1
