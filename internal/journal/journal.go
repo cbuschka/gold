@@ -3,17 +3,16 @@ package journal
 import (
 	"encoding/json"
 	"github.com/cbuschka/golf/internal/config"
+	"github.com/cockroachdb/pebble"
 	"github.com/google/uuid"
-	"github.com/syndtr/goleveldb/leveldb"
-	leveldbOpts "github.com/syndtr/goleveldb/leveldb/opt"
 )
 
 type Journal struct {
-	db *leveldb.DB
+	db *pebble.DB
 }
 
 func NewJournal(config *config.Config) (*Journal, error) {
-	db, err := leveldb.OpenFile(config.DataDirPath, &leveldbOpts.Options{})
+	db, err := pebble.Open(config.DataDirPath, &pebble.Options{})
 	if err != nil {
 		return nil, err
 	}
@@ -23,13 +22,8 @@ func NewJournal(config *config.Config) (*Journal, error) {
 
 func (journal *Journal) ListMessages(begin string, limit int, callback func(message *Message) (bool, error)) error {
 
-	iter := journal.db.NewIterator(nil, nil)
-	defer iter.Release()
-	found := iter.First()
-	if !found {
-		return nil
-	}
-
+	iter := journal.db.NewIter(nil)
+	defer iter.Close()
 	if begin != "" {
 		beginId, err := uuid.Parse(begin)
 		if err != nil {
@@ -41,11 +35,14 @@ func (journal *Journal) ListMessages(begin string, limit int, callback func(mess
 			return err
 		}
 
-		found := iter.Seek(beginIdBytes)
-		if !found {
-			return nil
-		}
+		iter.SetBounds(beginIdBytes, nil)
 	}
+
+	found := iter.First()
+	if !found {
+		return nil
+	}
+
 	count := 0
 	for ; iter.Valid(); iter.Next() {
 		if limit != -1 && count >= limit {
@@ -91,7 +88,7 @@ func (journal *Journal) WriteMessage(message *Message) error {
 		return err
 	}
 
-	err = journal.db.Put(idBytes, buf, nil)
+	err = journal.db.Set(idBytes, buf, pebble.NoSync)
 	if err != nil {
 		return err
 	}
