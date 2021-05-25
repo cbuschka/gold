@@ -16,6 +16,26 @@
 * query client that uses the rest api
 * periodic dump to gzipped jsonlines file
 
+## Configuration
+
+golfd.conf.json
+
+```json
+{
+  "dataDir": "./data/db",
+  "commandSocketPath": "./run/golfd.sock",
+  "gelfUdpListeners": [
+    "127.0.0.1:12201"
+  ],
+  "gelfTcpListeners": [
+    "127.0.0.1:12201"
+  ],
+  "gelfHttpListeners": [
+    "127.0.0.1:8080"
+  ]
+}
+```
+
 ## References
 
 * [GELF doc](https://docs.graylog.org/en/4.0/pages/gelf.html)
