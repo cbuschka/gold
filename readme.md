@@ -1,4 +1,5 @@
 # golf - gelf daemon written in go
+[![Build](https://github.com/cbuschka/golf/workflows/build/badge.svg)](https://github.com/cbuschka/golf) [![License](https://img.shields.io/github/license/cbuschka/golf.svg)](https://github.com/cbuschka/golf/blob/main/license.txt)
 
 ### WIP!
 
