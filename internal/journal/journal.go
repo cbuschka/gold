@@ -2,10 +2,8 @@ package journal
 
 import (
 	"encoding/binary"
-	"time"
-	bolt "go.etcd.io/bbolt"
-	gelf "gopkg.in/Graylog2/go-gelf.v2/gelf"
 	"encoding/json"
+	bolt "go.etcd.io/bbolt"
 )
 
 const bucketName = "MessagesV1"
@@ -34,7 +32,7 @@ func NewJournal() (*Journal, error) {
 	return &Journal{db: db}, nil
 }
 
-func (journal* Journal) ListMessages(begin int, limit int, callback func(uint64, *gelf.Message) (bool, error)) error {
+func (journal *Journal) ListMessages(begin int, limit int, callback func(message *Message) (bool, error)) error {
 
 	return journal.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))
@@ -50,40 +48,36 @@ func (journal* Journal) ListMessages(begin int, limit int, callback func(uint64,
 			if limit != -1 && count >= limit {
 				break
 			}
-			id := btoi(key)
-			var message gelf.Message
+			var message Message
 			err := json.Unmarshal(value, &message)
 			if err != nil {
 				return err
 			}
-			goon, err := callback(id, &message)
+			goon, err := callback(&message)
 			if err != nil {
 				return err
 			}
 			if !goon {
 				return nil
 			}
-			count = count+1
+			count = count + 1
 		}
 		return nil
 	})
 }
 
-func (journal *Journal) WriteMessage(message *gelf.Message) error {
+func (journal *Journal) WriteMessage(message *Message) error {
 
 	return journal.db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))
 
-		if message.TimeUnix == float64(0) {
-			message.TimeUnix = float64(time.Now().Unix())
-		}
-
 		id, _ := bucket.NextSequence()
+		message.Id = id
 
 		buf, err := json.Marshal(message)
 		if err != nil {
 			return err
-	        }
+		}
 
 		err = bucket.Put(itob(id), buf)
 		if err != nil {
@@ -100,7 +94,7 @@ func (journal *Journal) Close() error {
 
 func itob(v uint64) []byte {
 	b := make([]byte, 8)
-	binary.BigEndian.PutUint64(b, uint64(v))
+	binary.BigEndian.PutUint64(b, v)
 	return b
 }
 

@@ -29,14 +29,20 @@ func newHttpHandler(journal *journalPkg.Journal) http.Handler {
 
 	router.HandleFunc("/gelf", func(w http.ResponseWriter, r *http.Request) {
 
-		var message gelf.Message
-		err := jsonPkg.NewDecoder(r.Body).Decode(&message)
+		var gelfMessage gelf.Message
+		err := jsonPkg.NewDecoder(r.Body).Decode(&gelfMessage)
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
 
-		err = journal.WriteMessage(&message)
+		senderHost := r.Header.Get("X-Forwarded-For")
+		if senderHost == "" {
+			senderHost = r.RemoteAddr
+		}
+		message := journalPkg.FromGelfMessage(&gelfMessage, senderHost)
+
+		err = journal.WriteMessage(message)
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return

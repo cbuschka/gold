@@ -2,15 +2,14 @@ package gelf_server
 
 import (
 	"bufio"
-	"fmt"
-	"io"
-	"net"
-	gelf "gopkg.in/Graylog2/go-gelf.v2/gelf"
 	jsonPkg "encoding/json"
+	"fmt"
 	journalPkg "github.com/cbuschka/golf/internal/journal"
 	worker "github.com/cbuschka/golf/internal/worker"
+	gelf "gopkg.in/Graylog2/go-gelf.v2/gelf"
+	"io"
+	"net"
 )
-
 
 func ServeTcp(addr string, journal *journalPkg.Journal, workerPool *worker.WorkerPool) error {
 
@@ -22,7 +21,7 @@ func ServeTcp(addr string, journal *journalPkg.Journal, workerPool *worker.Worke
 
 	fmt.Printf("Listening on %s/tcp...\n", addr)
 
-        for {
+	for {
 		conn, err := tcpListener.Accept()
 		if err != nil {
 			return err
@@ -49,13 +48,14 @@ func handleConnection(conn net.Conn, journal *journalPkg.Journal) error {
 			return err
 		}
 
-		var message gelf.Message
-		err = jsonPkg.Unmarshal(bbuf, &message)
+		var gelfMessage gelf.Message
+		err = jsonPkg.Unmarshal(bbuf, &gelfMessage)
 		if err != nil {
 			return err
 		}
 
-		err = journal.WriteMessage(&message)
+		message := journalPkg.FromGelfMessage(&gelfMessage, conn.RemoteAddr().String())
+		err = journal.WriteMessage(message)
 		if err != nil {
 			return err
 		}
@@ -82,7 +82,7 @@ func readUntilZero(reader *bufio.Reader, limit int) ([]byte, error) {
 		}
 
 		bbuf[count] = b
-		count = count+1
+		count = count + 1
 	}
 
 	data := make([]byte, count)

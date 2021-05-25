@@ -1,25 +1,21 @@
 package command_server
 
 import (
+	jsonPkg "encoding/json"
 	"fmt"
 	journalPkg "github.com/cbuschka/golf/internal/journal"
-	jsonPkg "encoding/json"
-	gelf "gopkg.in/Graylog2/go-gelf.v2/gelf"
-	"net/http"
 	"github.com/gorilla/mux"
+	"net/http"
 	"strconv"
 )
 
 func listMessages(w http.ResponseWriter, r *http.Request, begin int, limit int, journal *journalPkg.Journal) {
 	fmt.Fprintf(w, "{\"messages\":[")
 	isFirst := true
-	journal.ListMessages(begin, limit, func(id uint64, message *gelf.Message) (bool, error) {
-		messageWithId, err := toMessageWithId(id, message)
-		if err != nil {
-			return false, err
-		}
+	journal.ListMessages(begin, limit, func(message *journalPkg.Message) (bool, error) {
 
-		messageJson, err := jsonPkg.Marshal(messageWithId)
+		messageJson, err := jsonPkg.Marshal(message)
+
 		if err != nil {
 			return false, err
 		}
@@ -42,7 +38,7 @@ func newHttpHandler(journal *journalPkg.Journal) http.Handler {
 		beginParam, ok := r.URL.Query()["begin"]
 		if ok && len(beginParam) > 0 && beginParam[0] != "" {
 			value, err := strconv.Atoi(beginParam[0])
-			if  err != nil {
+			if err != nil {
 				http.Error(w, fmt.Sprintf("Begin invalid: '%s'", beginParam[0]), http.StatusBadRequest)
 				return
 			}
@@ -53,7 +49,7 @@ func newHttpHandler(journal *journalPkg.Journal) http.Handler {
 		limitParam, ok := r.URL.Query()["limit"]
 		if ok && len(limitParam) > 0 && limitParam[0] != "" {
 			value, err := strconv.Atoi(limitParam[0])
-			if  err != nil {
+			if err != nil {
 				http.Error(w, fmt.Sprintf("Limit invalid: '%s'", limitParam[0]), http.StatusBadRequest)
 				return
 			}
@@ -64,18 +60,4 @@ func newHttpHandler(journal *journalPkg.Journal) http.Handler {
 	}).Methods("GET")
 
 	return http.Handler(router)
-}
-
-func toMessageWithId(id uint64, gelfMessage *gelf.Message) (*MessageWithId, error) {
-	gelfMessageJson, err := jsonPkg.Marshal(gelfMessage)
-	if err != nil {
-		return nil, err
-	}
-	var messageWithId MessageWithId
-	err = jsonPkg.Unmarshal(gelfMessageJson, &messageWithId)
-	if err != nil {
-		return nil, err
-	}
-	messageWithId.Id = id
-	return &messageWithId, nil
 }
