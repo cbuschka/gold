@@ -23,7 +23,7 @@ func ServeUdp(addr string, journal *journalPkg.Journal) error {
 			break
 		}
 
-		message := journalPkg.FromGelfMessage(gelfMessage, "")
+		message := journalPkg.FromGelfMessage(gelfMessage, "", "udp")
 		err = journal.WriteMessage(message)
 		if err != nil {
 			fmt.Printf("Writing message %v failed: %v\n", message, err)

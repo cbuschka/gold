@@ -40,7 +40,7 @@ func newHttpHandler(journal *journalPkg.Journal) http.Handler {
 		if senderHost == "" {
 			senderHost = r.RemoteAddr
 		}
-		message := journalPkg.FromGelfMessage(&gelfMessage, senderHost)
+		message := journalPkg.FromGelfMessage(&gelfMessage, senderHost, "http")
 
 		err = journal.WriteMessage(message)
 		if err != nil {

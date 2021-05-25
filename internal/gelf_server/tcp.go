@@ -54,7 +54,7 @@ func handleConnection(conn net.Conn, journal *journalPkg.Journal) error {
 			return err
 		}
 
-		message := journalPkg.FromGelfMessage(&gelfMessage, conn.RemoteAddr().String())
+		message := journalPkg.FromGelfMessage(&gelfMessage, conn.RemoteAddr().String(), "tcp")
 		err = journal.WriteMessage(message)
 		if err != nil {
 			return err

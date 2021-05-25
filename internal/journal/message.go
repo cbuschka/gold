@@ -16,6 +16,7 @@ type Message struct {
 	Version          string
 	Host             string
 	SenderHost       string
+	Input            string
 	Short            string
 	Full             string
 	TimeUnix         time.Time
@@ -25,7 +26,7 @@ type Message struct {
 	Extra            map[string]interface{}
 }
 
-func FromGelfMessage(gelfMessage *gelf.Message, senderHost string) *Message {
+func FromGelfMessage(gelfMessage *gelf.Message, senderHost string, input string) *Message {
 	var message Message
 	message.Id = 0
 	message.Version = gelfMessage.Version
@@ -38,6 +39,7 @@ func FromGelfMessage(gelfMessage *gelf.Message, senderHost string) *Message {
 	message.Extra = gelfMessage.Extra
 	message.SenderHost = senderHost
 	message.ReceivedTimeUnix = time.Now()
+	message.Input = input
 	message.Extra = make(map[string]interface{}, 0)
 	for k, v := range gelfMessage.Extra {
 		message.Extra[k] = v
@@ -60,6 +62,7 @@ func (m *Message) MarshalJSON() ([]byte, error) {
 		writer.KeyValue("facility", m.Facility)
 		writer.KeyValue("_sender_host", m.SenderHost)
 		writer.KeyValue("_received_timestamp", timeToString(m.ReceivedTimeUnix))
+		writer.KeyValue("_input", m.Input)
 		for k, v := range m.Extra {
 			writer.KeyValue(k, v)
 		}
@@ -95,6 +98,8 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 			m.Facility, ok = v.(string)
 		case "_sender_host":
 			m.SenderHost, ok = v.(string)
+		case "_input":
+			m.Input, ok = v.(string)
 		case "_received_timestamp":
 			m.ReceivedTimeUnix, ok = stringToTime(v.(string))
 		default:
