@@ -3,28 +3,27 @@ package journal
 import (
 	"encoding/binary"
 	"encoding/json"
-	bolt "go.etcd.io/bbolt"
+	"github.com/dgraph-io/badger/v3"
 )
 
-const bucketName = "MessagesV1"
-
 type Journal struct {
-	db *bolt.DB
+	db *badger.DB
 }
 
 func NewJournal() (*Journal, error) {
-	db, err := bolt.Open("./tmp/my.db", 0640, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	err = db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte(bucketName))
-		if err != nil {
-			return err
-		}
-		return nil
-	})
+	opts := badger.DefaultOptions("./tmp/db.badger/")
+	opts.InMemory = false
+	opts.NumVersionsToKeep = 1
+	opts.BaseTableSize = 1024 * 1024 * 1
+	opts.BaseLevelSize = 1024 * 1024 * 1
+	opts.ValueLogFileSize = 1024 * 1024 * 10
+	opts.MemTableSize = 1024 * 1024 * 10
+	opts.DetectConflicts = false
+	opts.NumLevelZeroTables = 1
+	opts.NumLevelZeroTablesStall = 2
+	opts.IndexCacheSize = 1024 * 1024 * 1
+	opts.BlockSize = 1024 * 4
+	db, err := badger.Open(opts)
 	if err != nil {
 		return nil, err
 	}
@@ -34,25 +33,29 @@ func NewJournal() (*Journal, error) {
 
 func (journal *Journal) ListMessages(begin int, limit int, callback func(message *Message) (bool, error)) error {
 
-	return journal.db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(bucketName))
-		cursor := bucket.Cursor()
-		count := 0
-		var key, value []byte
-		if begin <= 0 {
-			key, value = cursor.First()
+	return journal.db.View(func(tx *badger.Txn) error {
+
+		opts := badger.DefaultIteratorOptions
+		opts.PrefetchSize = 10
+		it := tx.NewIterator(opts)
+		defer it.Close()
+		if begin != -1 {
+			it.Seek(itob(uint64(begin)))
 		} else {
-			key, value = cursor.Seek(itob(uint64(begin)))
+			it.Rewind()
 		}
-		for ; key != nil; key, value = cursor.Next() {
+		count := 0
+		for ; it.Valid(); it.Next() {
 			if limit != -1 && count >= limit {
 				break
 			}
+			item := it.Item()
 			var message Message
-			err := json.Unmarshal(value, &message)
-			if err != nil {
+			err := item.Value(func(v []byte) error {
+				err := json.Unmarshal(v, &message)
 				return err
-			}
+			})
+
 			goon, err := callback(&message)
 			if err != nil {
 				return err
@@ -68,10 +71,18 @@ func (journal *Journal) ListMessages(begin int, limit int, callback func(message
 
 func (journal *Journal) WriteMessage(message *Message) error {
 
-	return journal.db.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(bucketName))
+	return journal.db.Update(func(tx *badger.Txn) error {
 
-		id, _ := bucket.NextSequence()
+		seq, err := journal.db.GetSequence([]byte("idSeq"), 10)
+		if err != nil {
+			return err
+		}
+		defer seq.Release()
+
+		id, err := seq.Next()
+		if err != nil {
+			return err
+		}
 		message.Id = id
 
 		buf, err := json.Marshal(message)
@@ -79,7 +90,7 @@ func (journal *Journal) WriteMessage(message *Message) error {
 			return err
 		}
 
-		err = bucket.Put(itob(id), buf)
+		err = tx.Set(itob(id), buf)
 		if err != nil {
 			return err
 		}
