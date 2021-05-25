@@ -1,8 +1,8 @@
 package gelf_server
 
 import (
-	"fmt"
 	journalPkg "github.com/cbuschka/golf/internal/journal"
+	"github.com/kataras/golog"
 	gelf "gopkg.in/Graylog2/go-gelf.v2/gelf"
 )
 
@@ -12,7 +12,7 @@ func ServeUdp(addr string, journal *journalPkg.Journal) error {
 		return err
 	}
 
-	fmt.Printf("Listening on %s/udp...\n", addr)
+	golog.Infof("GELF udp listener listening on %s/udp...", addr)
 	for {
 		gelfMessage, err := rd.ReadMessage()
 		if err != nil {
@@ -26,7 +26,7 @@ func ServeUdp(addr string, journal *journalPkg.Journal) error {
 		message := journalPkg.FromGelfMessage(gelfMessage, "", "udp")
 		err = journal.WriteMessage(message)
 		if err != nil {
-			fmt.Printf("Writing message %v failed: %v\n", message, err)
+			golog.Errorf("Writing message %v failed: %v", message, err)
 		}
 	}
 

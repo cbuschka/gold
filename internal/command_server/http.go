@@ -5,29 +5,42 @@ import (
 	"fmt"
 	journalPkg "github.com/cbuschka/golf/internal/journal"
 	"github.com/gorilla/mux"
+	"github.com/kataras/golog"
 	"net/http"
 	"strconv"
 )
 
-func listMessages(w http.ResponseWriter, r *http.Request, begin string, limit int, journal *journalPkg.Journal) {
-	fmt.Fprintf(w, "{\"messages\":[")
+func listMessages(w http.ResponseWriter, r *http.Request, begin string, limit int, journal *journalPkg.Journal) error {
+	_, err := fmt.Fprintf(w, "{\"messages\":[")
+	if err != nil {
+		return err
+	}
 	isFirst := true
-	journal.ListMessages(begin, limit, func(message *journalPkg.Message) (bool, error) {
+	err = journal.ListMessages(begin, limit, func(message *journalPkg.Message) (bool, error) {
 
 		messageJson, err := jsonPkg.Marshal(message)
-
 		if err != nil {
 			return false, err
 		}
+
 		seperator := ",\n"
 		if isFirst {
 			seperator = "\n"
 		}
-		fmt.Fprintf(w, "%s%s", seperator, messageJson)
+		_, err = fmt.Fprintf(w, "%s%s", seperator, messageJson)
+		if err != nil {
+			return false, err
+		}
+
 		isFirst = false
 		return true, nil
 	})
-	fmt.Fprintf(w, "\n]}\n")
+	if err != nil {
+		return err
+	}
+	_, err = fmt.Fprintf(w, "\n]}\n")
+
+	return err
 }
 
 func newHttpHandler(journal *journalPkg.Journal) http.Handler {
@@ -51,7 +64,10 @@ func newHttpHandler(journal *journalPkg.Journal) http.Handler {
 			limit = value
 		}
 
-		listMessages(w, r, begin, limit, journal)
+		err := listMessages(w, r, begin, limit, journal)
+		if err != nil {
+			golog.Errorf("Listing messages failed: %v", err)
+		}
 	}).Methods("GET")
 
 	return http.Handler(router)

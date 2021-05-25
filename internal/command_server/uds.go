@@ -1,8 +1,8 @@
 package command_server
 
 import (
-	"fmt"
 	journalPkg "github.com/cbuschka/golf/internal/journal"
+	"github.com/kataras/golog"
 	"net"
 	"net/http"
 	"os"
@@ -14,7 +14,7 @@ func ServeUds(file string, journal *journalPkg.Journal) error {
 		return err
 	}
 
-	fmt.Printf("Command server listening on %s...\n", file)
+	golog.Infof("Command server http listener listening on %s...", file)
 
 	udsListener, err := net.Listen("unix", file)
 	if err != nil {
@@ -22,7 +22,6 @@ func ServeUds(file string, journal *journalPkg.Journal) error {
 	}
 	defer udsListener.Close()
 	httpHandler := newHttpHandler(journal)
-	http.Serve(udsListener, httpHandler)
-
-	return nil
+	err = http.Serve(udsListener, httpHandler)
+	return err
 }

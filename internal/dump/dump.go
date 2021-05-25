@@ -1,9 +1,9 @@
 package dump
 
 import (
-	"fmt"
 	journalPkg "github.com/cbuschka/golf/internal/journal"
-	worker "github.com/cbuschka/golf/internal/worker"
+	"github.com/cbuschka/golf/internal/worker"
+	"github.com/kataras/golog"
 	"time"
 )
 
@@ -15,7 +15,7 @@ func StartPeriodicDump(journal *journalPkg.Journal, workerPool *worker.WorkerPoo
 			return false, nil
 		})
 		if err != nil {
-			fmt.Printf("Error querying first timestamp: %v\n", err)
+			golog.Errorf("Error querying first timestamp: %v", err)
 		}
 	}, 1*time.Minute)
 }

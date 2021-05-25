@@ -6,6 +6,7 @@ import (
 	"fmt"
 	journalPkg "github.com/cbuschka/golf/internal/journal"
 	worker "github.com/cbuschka/golf/internal/worker"
+	"github.com/kataras/golog"
 	gelf "gopkg.in/Graylog2/go-gelf.v2/gelf"
 	"io"
 	"net"
@@ -13,13 +14,13 @@ import (
 
 func ServeTcp(addr string, journal *journalPkg.Journal, workerPool *worker.WorkerPool) error {
 
-	tcpListener, err := net.Listen("tcp4", addr)
+	tcpListener, err := net.Listen("tcp", addr)
 	if err != nil {
 		return err
 	}
 	defer tcpListener.Close()
 
-	fmt.Printf("Listening on %s/tcp...\n", addr)
+	golog.Infof("GELF tcp listener listening on %s/tcp...", addr)
 
 	for {
 		conn, err := tcpListener.Accept()
@@ -34,12 +35,12 @@ func ServeTcp(addr string, journal *journalPkg.Journal, workerPool *worker.Worke
 			return err
 		})
 	}
-
-	return nil
 }
 
 func handleConnection(conn net.Conn, journal *journalPkg.Journal) error {
-	fmt.Printf("Serving %s...\n", conn.RemoteAddr().String())
+	golog.Debugf("New GELF tcp connection from %s...", conn.RemoteAddr().String())
+	defer golog.Debugf("GELF tcp connection from %s closed.", conn.RemoteAddr().String())
+
 	defer conn.Close()
 	reader := bufio.NewReader(conn)
 	for {
@@ -60,8 +61,6 @@ func handleConnection(conn net.Conn, journal *journalPkg.Journal) error {
 			return err
 		}
 	}
-
-	return nil
 }
 
 func readUntilZero(reader *bufio.Reader, limit int) ([]byte, error) {

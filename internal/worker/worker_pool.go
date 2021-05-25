@@ -1,7 +1,7 @@
 package worker
 
 import (
-	"fmt"
+	"github.com/kataras/golog"
 	"sync"
 )
 
@@ -24,7 +24,7 @@ func (workerPool *WorkerPool) RunWork(f func() error) {
 		defer workerPool.waitGroup.Done()
 		err := f()
 		if err != nil {
-			fmt.Printf("Executing work failed: %v\n", err)
+			golog.Errorf("Executing work failed: %v", err)
 		}
 	})()
 }

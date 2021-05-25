@@ -7,6 +7,8 @@ import (
 	"github.com/cbuschka/golf/internal/gelf_server"
 	journalPkg "github.com/cbuschka/golf/internal/journal"
 	worker "github.com/cbuschka/golf/internal/worker"
+	"github.com/kataras/golog"
+	"time"
 )
 
 func startGelfUdpListener(addr string, journal *journalPkg.Journal, workerPool *worker.WorkerPool) {
@@ -34,6 +36,9 @@ func startGelfHttpListener(bindAddr string, journal *journalPkg.Journal, workerP
 }
 
 func Run(configFile string) error {
+	golog.SetTimeFormat(time.RFC3339Nano)
+	golog.SetLevel("info")
+
 	config, err := configPkg.GetConfig(configFile)
 	if err != nil {
 		return err

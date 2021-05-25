@@ -2,9 +2,9 @@ package gelf_server
 
 import (
 	jsonPkg "encoding/json"
-	"fmt"
 	journalPkg "github.com/cbuschka/golf/internal/journal"
 	"github.com/gorilla/mux"
+	"github.com/kataras/golog"
 	gelf "gopkg.in/Graylog2/go-gelf.v2/gelf"
 	"net"
 	"net/http"
@@ -13,15 +13,14 @@ import (
 func ServeHttp(addr string, journal *journalPkg.Journal) error {
 
 	httpListener, err := net.Listen("tcp", addr)
-	fmt.Printf("HTTP server listening on %s...\n", addr)
+	golog.Infof("GELF http listener listening on %s...", addr)
 	if err != nil {
 		return err
 	}
 	defer httpListener.Close()
 	httpHandler := newHttpHandler(journal)
-	http.Serve(httpListener, httpHandler)
-
-	return nil
+	err = http.Serve(httpListener, httpHandler)
+	return err
 }
 
 func newHttpHandler(journal *journalPkg.Journal) http.Handler {
