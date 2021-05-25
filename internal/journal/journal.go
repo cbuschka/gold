@@ -71,10 +71,7 @@ func (journal *Journal) ListMessages(begin string, limit int, callback func(mess
 
 func (journal *Journal) WriteMessage(message *Message) error {
 
-	id, err := uuid.NewUUID()
-	if err != nil {
-		return err
-	}
+	id := uuid.New()
 
 	message.Id = id.String()
 
