@@ -19,3 +19,10 @@ run_query_list:
 	@echo "### Running golfq..."; \
 	cd ${TOP_DIR}
 	go run ./cmd/golfq/golfq.go list
+
+build:
+	@echo "### Building golfd..."; \
+	cd ${TOP_DIR}
+	go build -o dist/golfd ./cmd/golfd/golfd.go
+
+
