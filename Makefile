@@ -15,11 +15,6 @@ run_daemon:
 	cd ${TOP_DIR}
 	go run ./cmd/golfd/golfd.go
 
-run_query_list:
-	@echo "### Running golfq..."; \
-	cd ${TOP_DIR}
-	go run ./cmd/golfq/golfq.go list
-
 build:
 	@echo "### Building golfd..."; \
 	cd ${TOP_DIR}
