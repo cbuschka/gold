@@ -4,14 +4,13 @@ import (
 	"fmt"
 	journalPkg "github.com/cbuschka/golf/internal/journal"
 	worker "github.com/cbuschka/golf/internal/worker"
-	"math"
 	"time"
 )
 
 func StartPeriodicDump(journal *journalPkg.Journal, workerPool *worker.WorkerPool) {
 	_ = schedule(func() {
 		var firstTimestamp time.Time
-		err := journal.ListMessages(-1, -1, func(message *journalPkg.Message) (bool, error) {
+		err := journal.ListMessages("", -1, func(message *journalPkg.Message) (bool, error) {
 			firstTimestamp = message.ReceivedTimeUnix
 			return false, nil
 		})
@@ -36,9 +35,4 @@ func schedule(work func(), delay time.Duration) chan bool {
 	}()
 
 	return stop
-}
-
-func timeFromFloat64(timeFloat float64) time.Time {
-	sec, dec := math.Modf(timeFloat)
-	return time.Unix(int64(sec), int64(dec*(1e9)))
 }

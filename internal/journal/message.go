@@ -7,12 +7,11 @@ import (
 	"github.com/karlseguin/jsonwriter"
 	"gopkg.in/Graylog2/go-gelf.v2/gelf"
 	"math"
-	"strconv"
 	"time"
 )
 
 type Message struct {
-	Id               uint64
+	Id               string
 	Version          string
 	Host             string
 	SenderHost       string
@@ -28,7 +27,7 @@ type Message struct {
 
 func FromGelfMessage(gelfMessage *gelf.Message, senderHost string, input string) *Message {
 	var message Message
-	message.Id = 0
+	message.Id = ""
 	message.Version = gelfMessage.Version
 	message.Host = gelfMessage.Host
 	message.Short = gelfMessage.Short
@@ -52,7 +51,7 @@ func (m *Message) MarshalJSON() ([]byte, error) {
 
 	writer := jsonwriter.New(buf)
 	writer.RootObject(func() {
-		writer.KeyValue("_id", uint64ToString(m.Id))
+		writer.KeyValue("_id", m.Id)
 		writer.KeyValue("version", m.Version)
 		writer.KeyValue("host", m.Host)
 		writer.KeyValue("short_message", m.Short)
@@ -79,7 +78,7 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 		ok := true
 		switch k {
 		case "_id":
-			m.Id, ok = stringToUint64(v.(string))
+			m.Id, ok = v.(string)
 		case "version":
 			m.Version, ok = v.(string)
 		case "host":
@@ -117,18 +116,6 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 		}
 	}
 	return nil
-}
-
-func uint64ToString(v uint64) string {
-	return strconv.FormatUint(v, 10)
-}
-
-func stringToUint64(v string) (uint64, bool) {
-	x, err := strconv.ParseUint(v, 10, 64)
-	if err != nil {
-		return 0, false
-	}
-	return x, true
 }
 
 func stringToTime(s string) (time.Time, bool) {

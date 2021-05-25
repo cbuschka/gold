@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func listMessages(w http.ResponseWriter, r *http.Request, begin int, limit int, journal *journalPkg.Journal) {
+func listMessages(w http.ResponseWriter, r *http.Request, begin string, limit int, journal *journalPkg.Journal) {
 	fmt.Fprintf(w, "{\"messages\":[")
 	isFirst := true
 	journal.ListMessages(begin, limit, func(message *journalPkg.Message) (bool, error) {
@@ -34,15 +34,10 @@ func newHttpHandler(journal *journalPkg.Journal) http.Handler {
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.HandleFunc("/messages", func(w http.ResponseWriter, r *http.Request) {
-		var begin = -1
+		var begin = ""
 		beginParam, ok := r.URL.Query()["begin"]
 		if ok && len(beginParam) > 0 && beginParam[0] != "" {
-			value, err := strconv.Atoi(beginParam[0])
-			if err != nil {
-				http.Error(w, fmt.Sprintf("Begin invalid: '%s'", beginParam[0]), http.StatusBadRequest)
-				return
-			}
-			begin = value
+			begin = beginParam[0]
 		}
 
 		limit := -1
