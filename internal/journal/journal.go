@@ -3,7 +3,6 @@ package journal
 import (
 	"encoding/binary"
 	"encoding/json"
-	"fmt"
 	bolt "go.etcd.io/bbolt"
 )
 
@@ -15,11 +14,6 @@ type Journal struct {
 
 func NewJournal() (*Journal, error) {
 	db, err := bolt.Open("./tmp/my.db", 0640, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	err = writeMetadata(err, db)
 	if err != nil {
 		return nil, err
 	}
@@ -36,31 +30,6 @@ func NewJournal() (*Journal, error) {
 	}
 
 	return &Journal{db: db}, nil
-}
-
-func writeMetadata(err error, db *bolt.DB) error {
-	err = db.Update(func(tx *bolt.Tx) error {
-		bucket, err := tx.CreateBucketIfNotExists([]byte("meta"))
-		if err != nil {
-			return err
-		}
-
-		value := bucket.Get([]byte("version"))
-		if value != nil {
-			version := string(value)
-			if version != "v1" {
-				return fmt.Errorf("Unexpected database version: %s", version)
-			}
-		} else {
-			err = bucket.Put([]byte("version"), []byte("v1"))
-			if err != nil {
-				return err
-			}
-		}
-
-		return nil
-	})
-	return err
 }
 
 func (journal *Journal) ListMessages(begin int, limit int, callback func(message *Message) (bool, error)) error {
