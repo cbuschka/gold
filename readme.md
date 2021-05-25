@@ -6,7 +6,7 @@
 ## Features
 
 * receives gelf messages on udp, tcp and http
-* stores log messages in ~~boltdb~~ ~~badger~~ ~~leveldb~~ [pebble](https://github.com/cockroachdb/pebble)
+* stores log messages in ~~boltdb~~ ~~badger~~ ~~leveldb~~ [pebble by cockroach labs](https://github.com/cockroachdb/pebble)
 * adds generated uuid as \_id attribute to gelf message
 * adds \_received\_timestamp and \_sender\_host attributes to gelf message
 * exports rest api via unix domain socket
