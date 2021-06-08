@@ -12,7 +12,7 @@ type PebbleJournal struct {
 }
 
 func NewPebbleJournal(config *config.Config) (Journal, error) {
-	db, err := pebble.Open(config.DataDirPath, &pebble.Options{})
+	db, err := pebble.Open(config.Journal.DataDirPath, &pebble.Options{})
 	if err != nil {
 		return nil, err
 	}

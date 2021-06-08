@@ -6,7 +6,7 @@ import (
 	"github.com/cbuschka/golf/internal/dump"
 	"github.com/cbuschka/golf/internal/gelf_server"
 	journalPkg "github.com/cbuschka/golf/internal/journal"
-	worker "github.com/cbuschka/golf/internal/worker"
+	"github.com/cbuschka/golf/internal/worker"
 	"github.com/kataras/golog"
 	"time"
 )
@@ -44,7 +44,7 @@ func Run(configFile string) error {
 		return err
 	}
 
-	journal, err := journalPkg.NewPebbleJournal(config)
+	journal, err := journalPkg.NewJournal(config)
 	if err != nil {
 		return err
 	}

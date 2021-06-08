@@ -7,11 +7,16 @@ import (
 )
 
 type Config struct {
-	DataDirPath             string   `json:"dataDir"`
-	CommandDomainSocketPath string   `json:"commandSocketPath"`
-	GelfUdpListeners        []string `json:"gelfUdpListeners"`
-	GelfTcpListeners        []string `json:"gelfTcpListeners"`
-	GelfHttpListeners       []string `json:"gelfHttpListeners"`
+	Journal                 JournalConfig `json:"journal"`
+	CommandDomainSocketPath string        `json:"commandSocketPath"`
+	GelfUdpListeners        []string      `json:"gelfUdpListeners"`
+	GelfTcpListeners        []string      `json:"gelfTcpListeners"`
+	GelfHttpListeners       []string      `json:"gelfHttpListeners"`
+}
+
+type JournalConfig struct {
+	DataDirPath string `json:"dataDir"`
+	Type        string `json:"type"`
 }
 
 func GetConfig(filename string) (*Config, error) {
@@ -37,7 +42,7 @@ func GetConfig(filename string) (*Config, error) {
 }
 
 func GetDefaultConfig() *Config {
-	return &Config{DataDirPath: "./data", CommandDomainSocketPath: "./run/golfd.sock",
+	return &Config{Journal: JournalConfig{DataDirPath: "./data", Type: "simple"}, CommandDomainSocketPath: "./run/golfd.sock",
 		GelfUdpListeners: []string{"127.0.0.1:12201"}, GelfTcpListeners: []string{"127.0.0.1:12201"},
 		GelfHttpListeners: []string{"127.0.0.1:8080"}}
 }

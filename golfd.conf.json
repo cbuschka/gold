@@ -1,5 +1,8 @@
 {
-  "dataDir": "./data",
+  "journal": {
+    "dataDir": "./data/simple",
+    "type": "simple"
+  },
   "commandSocketPath": "./run/golfd.sock",
   "gelfUdpListeners": [
     "127.0.0.1:12201"
