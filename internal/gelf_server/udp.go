@@ -6,7 +6,7 @@ import (
 	gelf "gopkg.in/Graylog2/go-gelf.v2/gelf"
 )
 
-func ServeUdp(addr string, journal *journalPkg.Journal) error {
+func ServeUdp(addr string, journal journalPkg.Journal) error {
 	rd, err := gelf.NewReader(addr)
 	if err != nil {
 		return err

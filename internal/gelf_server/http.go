@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-func ServeHttp(addr string, journal *journalPkg.Journal) error {
+func ServeHttp(addr string, journal journalPkg.Journal) error {
 
 	httpListener, err := net.Listen("tcp", addr)
 	golog.Infof("GELF http listener listening on %s...", addr)
@@ -23,7 +23,7 @@ func ServeHttp(addr string, journal *journalPkg.Journal) error {
 	return err
 }
 
-func newHttpHandler(journal *journalPkg.Journal) http.Handler {
+func newHttpHandler(journal journalPkg.Journal) http.Handler {
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.HandleFunc("/gelf", func(w http.ResponseWriter, r *http.Request) {

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func StartPeriodicDump(journal *journalPkg.Journal, workerPool *worker.WorkerPool) {
+func StartPeriodicDump(journal journalPkg.Journal, workerPool *worker.WorkerPool) {
 	_ = schedule(func() {
 		var firstTimestamp time.Time
 		err := journal.ListMessages("", -1, func(message *journalPkg.Message) (bool, error) {

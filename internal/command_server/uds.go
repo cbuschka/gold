@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-func ServeUds(file string, journal *journalPkg.Journal) error {
+func ServeUds(file string, journal journalPkg.Journal) error {
 
 	if err := os.RemoveAll(file); err != nil {
 		return err

@@ -12,7 +12,7 @@ import (
 	"net"
 )
 
-func ServeTcp(addr string, journal *journalPkg.Journal, workerPool *worker.WorkerPool) error {
+func ServeTcp(addr string, journal journalPkg.Journal, workerPool *worker.WorkerPool) error {
 
 	tcpListener, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -37,7 +37,7 @@ func ServeTcp(addr string, journal *journalPkg.Journal, workerPool *worker.Worke
 	}
 }
 
-func handleConnection(conn net.Conn, journal *journalPkg.Journal) error {
+func handleConnection(conn net.Conn, journal journalPkg.Journal) error {
 	golog.Debugf("New GELF tcp connection from %s...", conn.RemoteAddr().String())
 	defer golog.Debugf("GELF tcp connection from %s closed.", conn.RemoteAddr().String())
 

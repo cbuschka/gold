@@ -10,7 +10,7 @@ import (
 	"strconv"
 )
 
-func listMessages(w http.ResponseWriter, r *http.Request, begin string, limit int, journal *journalPkg.Journal) error {
+func listMessages(w http.ResponseWriter, r *http.Request, begin string, limit int, journal journalPkg.Journal) error {
 	_, err := fmt.Fprintf(w, "{\"messages\":[")
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func listMessages(w http.ResponseWriter, r *http.Request, begin string, limit in
 	return err
 }
 
-func newHttpHandler(journal *journalPkg.Journal) http.Handler {
+func newHttpHandler(journal journalPkg.Journal) http.Handler {
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.HandleFunc("/messages", func(w http.ResponseWriter, r *http.Request) {

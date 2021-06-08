@@ -11,25 +11,25 @@ import (
 	"time"
 )
 
-func startGelfUdpListener(addr string, journal *journalPkg.Journal, workerPool *worker.WorkerPool) {
+func startGelfUdpListener(addr string, journal journalPkg.Journal, workerPool *worker.WorkerPool) {
 	workerPool.RunWork(func() error {
 		return gelf_server.ServeUdp(addr, journal)
 	})
 }
 
-func startGelfTcpListener(addr string, journal *journalPkg.Journal, workerPool *worker.WorkerPool) {
+func startGelfTcpListener(addr string, journal journalPkg.Journal, workerPool *worker.WorkerPool) {
 	workerPool.RunWork(func() error {
 		return gelf_server.ServeTcp(addr, journal, workerPool)
 	})
 }
 
-func startUdsCommandServer(socketPath string, journal *journalPkg.Journal, workerPool *worker.WorkerPool) {
+func startUdsCommandServer(socketPath string, journal journalPkg.Journal, workerPool *worker.WorkerPool) {
 	workerPool.RunWork(func() error {
 		return command_server.ServeUds(socketPath, journal)
 	})
 }
 
-func startGelfHttpListener(bindAddr string, journal *journalPkg.Journal, workerPool *worker.WorkerPool) {
+func startGelfHttpListener(bindAddr string, journal journalPkg.Journal, workerPool *worker.WorkerPool) {
 	workerPool.RunWork(func() error {
 		return gelf_server.ServeHttp(bindAddr, journal)
 	})
@@ -44,7 +44,7 @@ func Run(configFile string) error {
 		return err
 	}
 
-	journal, err := journalPkg.NewJournal(config)
+	journal, err := journalPkg.NewPebbleJournal(config)
 	if err != nil {
 		return err
 	}
