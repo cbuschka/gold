@@ -1,0 +1,7 @@
+[package]
+name = "golf"
+description = "A tiny gelf server."
+version = "0.0.1"
+authors = ["Cornelius Buschka <cbuschka@gmail.com>"]
+
+[dependencies]

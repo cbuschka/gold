@@ -1,0 +1,21 @@
+on: 
+  push:
+    branches:
+      - conni_rust
+  workflow_dispatch:
+    branches:
+      - conni_rust
+name: build
+jobs:
+  build:
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
