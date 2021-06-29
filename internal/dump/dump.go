@@ -1,8 +1,8 @@
 package dump
 
 import (
-	journalPkg "github.com/cbuschka/golf/internal/journal"
-	"github.com/cbuschka/golf/internal/worker"
+	journalPkg "github.com/cbuschka/gold/internal/journal"
+	"github.com/cbuschka/gold/internal/worker"
 	"github.com/kataras/golog"
 	"time"
 )

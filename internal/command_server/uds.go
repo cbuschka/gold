@@ -1,7 +1,7 @@
 package command_server
 
 import (
-	journalPkg "github.com/cbuschka/golf/internal/journal"
+	journalPkg "github.com/cbuschka/gold/internal/journal"
 	"github.com/kataras/golog"
 	"net"
 	"net/http"

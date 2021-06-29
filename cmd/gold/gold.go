@@ -1,13 +1,13 @@
 package main
 
 import (
-	"github.com/cbuschka/golf/internal/daemon"
+	"github.com/cbuschka/gold/internal/daemon"
 	"github.com/kataras/golog"
 	"os"
 )
 
 func main() {
-	err := daemon.Run("./golfd.conf.json")
+	err := daemon.Run("./gold.conf.json")
 	if err != nil {
 		golog.Fatalf("Fatal error: %v\n", err)
 		os.Exit(1)

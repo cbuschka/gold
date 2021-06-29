@@ -11,13 +11,13 @@ tidy_mod:
 	go mod tidy
 
 run_daemon:
-	@echo "### Running golfd..."; \
+	@echo "### Running gold..."; \
 	cd ${TOP_DIR}
-	go run ./cmd/golfd/golfd.go
+	go run ./cmd/gold/gold.go
 
 build:
-	@echo "### Building golfd..."; \
+	@echo "### Building gold..."; \
 	cd ${TOP_DIR}
-	go build -o dist/golfd ./cmd/golfd/golfd.go
+	go build -o dist/gold ./cmd/gold/gold.go
 
 

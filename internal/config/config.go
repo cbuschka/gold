@@ -37,7 +37,7 @@ func GetConfig(filename string) (*Config, error) {
 }
 
 func GetDefaultConfig() *Config {
-	return &Config{DataDirPath: "./data", CommandDomainSocketPath: "./run/golfd.sock",
+	return &Config{DataDirPath: "./data", CommandDomainSocketPath: "./run/gold.sock",
 		GelfUdpListeners: []string{"127.0.0.1:12201"}, GelfTcpListeners: []string{"127.0.0.1:12201"},
 		GelfHttpListeners: []string{"127.0.0.1:8080"}}
 }

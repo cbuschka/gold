@@ -1,12 +1,12 @@
 package daemon
 
 import (
-	"github.com/cbuschka/golf/internal/command_server"
-	configPkg "github.com/cbuschka/golf/internal/config"
-	"github.com/cbuschka/golf/internal/dump"
-	"github.com/cbuschka/golf/internal/gelf_server"
-	journalPkg "github.com/cbuschka/golf/internal/journal"
-	worker "github.com/cbuschka/golf/internal/worker"
+	"github.com/cbuschka/gold/internal/command_server"
+	configPkg "github.com/cbuschka/gold/internal/config"
+	"github.com/cbuschka/gold/internal/dump"
+	"github.com/cbuschka/gold/internal/gelf_server"
+	journalPkg "github.com/cbuschka/gold/internal/journal"
+	worker "github.com/cbuschka/gold/internal/worker"
 	"github.com/kataras/golog"
 	"time"
 )

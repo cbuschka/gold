@@ -1,6 +1,6 @@
 {
   "dataDir": "./data",
-  "commandSocketPath": "./run/golfd.sock",
+  "commandSocketPath": "./run/gold.sock",
   "gelfUdpListeners": [
     "127.0.0.1:12201"
   ],

@@ -1,7 +1,7 @@
 package gelf_server
 
 import (
-	journalPkg "github.com/cbuschka/golf/internal/journal"
+	journalPkg "github.com/cbuschka/gold/internal/journal"
 	"github.com/kataras/golog"
 	gelf "gopkg.in/Graylog2/go-gelf.v2/gelf"
 )

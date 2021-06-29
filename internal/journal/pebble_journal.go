@@ -2,7 +2,7 @@ package journal
 
 import (
 	"encoding/json"
-	"github.com/cbuschka/golf/internal/config"
+	"github.com/cbuschka/gold/internal/config"
 	"github.com/cockroachdb/pebble"
 	"github.com/google/uuid"
 )

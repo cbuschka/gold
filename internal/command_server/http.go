@@ -3,7 +3,7 @@ package command_server
 import (
 	jsonPkg "encoding/json"
 	"fmt"
-	journalPkg "github.com/cbuschka/golf/internal/journal"
+	journalPkg "github.com/cbuschka/gold/internal/journal"
 	"github.com/gorilla/mux"
 	"github.com/kataras/golog"
 	"net/http"

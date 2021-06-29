@@ -1,4 +1,4 @@
-module github.com/cbuschka/golf
+module github.com/cbuschka/gold
 
 go 1.16
 

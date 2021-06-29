@@ -2,7 +2,7 @@ package gelf_server
 
 import (
 	jsonPkg "encoding/json"
-	journalPkg "github.com/cbuschka/golf/internal/journal"
+	journalPkg "github.com/cbuschka/gold/internal/journal"
 	"github.com/gorilla/mux"
 	"github.com/kataras/golog"
 	gelf "gopkg.in/Graylog2/go-gelf.v2/gelf"

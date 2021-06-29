@@ -1,5 +1,5 @@
-# golf - gelf daemon written in go
-[![Build](https://github.com/cbuschka/golf/workflows/build/badge.svg)](https://github.com/cbuschka/golf) [![License](https://img.shields.io/github/license/cbuschka/golf.svg)](https://github.com/cbuschka/golf/blob/main/license.txt)
+# gold - gelf log daemon written in go
+[![Build](https://github.com/cbuschka/gold/workflows/build/badge.svg)](https://github.com/cbuschka/gold) [![License](https://img.shields.io/github/license/cbuschka/gold.svg)](https://github.com/cbuschka/gold/blob/main/license.txt)
 
 ### WIP!
 
@@ -9,21 +9,21 @@
 * stores log messages in ~~boltdb~~ ~~badger~~ ~~leveldb~~ [pebble by cockroach labs](https://github.com/cockroachdb/pebble)
 * adds generated uuid as \_id attribute to gelf message
 * adds \_received\_timestamp and \_sender\_host attributes to gelf message
-* exports rest api via unix domain socket
+* exports rest api via unix domain socket for querying and control
 
 ## Planned Features
 
 * query client that uses the rest api
-* periodic dump to gzipped jsonlines file
+* archive and expunge old log data
 
 ## Configuration
 
-golfd.conf.json
+gold.conf.json
 
 ```json
 {
   "dataDir": "./data/db",
-  "commandSocketPath": "./run/golfd.sock",
+  "commandSocketPath": "./run/gold.sock",
   "gelfUdpListeners": [
     "127.0.0.1:12201"
   ],
